@@ -1,0 +1,516 @@
+<meta charset="UTF-8">
+
+<title>Robot Vacuum Control</title>
+
+
+<h1>Robot Vacuum Control</h1>
+
+
+<p>
+
+    Robot Status:
+
+    <span id="robot-status">
+        Ready
+    </span>
+
+</p>
+
+
+<h2>No-Go Zone</h2>
+
+
+<div>
+
+    <label for="zone-name">
+        Room Name
+    </label>
+
+    <input
+        id="zone-name"
+        type="text"
+        placeholder="Enter room name"
+    >
+
+</div>
+
+
+<br>
+
+
+<div>
+
+    <label for="floor-id">
+        Floor
+    </label>
+
+    <select id="floor-id">
+
+        <option value="F01">
+            1st Floor
+        </option>
+
+        <option value="F02">
+            2nd Floor
+        </option>
+
+        <option value="F03">
+            3rd Floor
+        </option>
+
+    </select>
+
+</div>
+
+
+<br>
+
+
+<button id="create-zone">
+
+    Create No-Go Zone
+
+</button>
+
+
+<h2>Saved Zones</h2>
+
+
+<ul id="zone-list"></ul>
+
+
+<script>
+
+
+    // ==========================================
+    // UI Elements
+    // ==========================================
+
+    const button =
+        document.getElementById("create-zone");
+
+
+    const input =
+        document.getElementById("zone-name");
+
+
+    const floorSelect =
+        document.getElementById("floor-id");
+
+
+    const zoneList =
+        document.getElementById("zone-list");
+
+
+    // ==========================================
+    // Create No-Go Zone
+    // ==========================================
+
+    button.addEventListener(
+        "click",
+        async function () {
+
+
+            // User input
+
+            const zoneName =
+                input.value.trim();
+
+
+            const floorId =
+                floorSelect.value;
+
+
+            // ==========================================
+            // Validate Room Name
+            // ==========================================
+
+            if (zoneName === "") {
+
+                alert(
+                    "Room Name is required."
+                );
+
+                return;
+            }
+
+
+            // ==========================================
+            // Create Zone through API
+            // ==========================================
+
+            const response = await fetch(
+                "/api/zones",
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body: JSON.stringify({
+
+                        floor_id:
+                            floorId,
+
+                        name:
+                            zoneName
+
+                    })
+
+                }
+            );
+
+
+            // ==========================================
+            // API Error
+            // ==========================================
+
+            if (!response.ok) {
+
+                alert(
+                    "Failed to create No-Go Zone."
+                );
+
+                return;
+            }
+
+
+            // ==========================================
+            // Get Server Response
+            // ==========================================
+
+            const zoneData =
+                await response.json();
+
+
+            // ==========================================
+            // Create UI Element
+            // ==========================================
+
+            createZoneElement(
+                zoneData
+            );
+
+
+            // Clear input
+
+            input.value = "";
+
+        }
+    );
+
+
+    // ==========================================
+    // Create Zone UI Element
+    // ==========================================
+
+    function createZoneElement(zoneData) {
+
+
+        const zone =
+            document.createElement("li");
+
+
+        // Server-generated Zone ID
+
+        zone.setAttribute(
+            "data-zone-id",
+            zoneData.zone_id
+        );
+
+
+        // Server-returned Floor ID
+
+        zone.setAttribute(
+            "data-floor-id",
+            zoneData.floor_id
+        );
+
+
+        // User-entered Room Name
+
+        zone.setAttribute(
+            "data-zone-name",
+            zoneData.name
+        );
+
+
+        // Display Zone information
+
+        zone.textContent =
+            `${zoneData.floor_id} | ` +
+            `${zoneData.name} | ` +
+            `${zoneData.zone_id}`;
+
+
+        // ==========================================
+        // Edit Button
+        // ==========================================
+
+        const editButton =
+            document.createElement("button");
+
+
+        editButton.textContent =
+            "Edit";
+
+
+        editButton.style.marginLeft =
+            "10px";
+
+
+        editButton.addEventListener(
+            "click",
+            function () {
+
+                editZone(
+                    zoneData,
+                    zone
+                );
+
+            }
+        );
+
+
+        zone.appendChild(
+            editButton
+        );
+
+
+
+// ==========================================
+// Delete Button
+// ==========================================
+
+        const deleteButton =
+            document.createElement("button");
+
+        deleteButton.textContent =
+            "Delete";
+
+        deleteButton.style.marginLeft =
+            "10px";
+
+        deleteButton.addEventListener(
+            "click",
+            function () {
+
+             deleteZone(
+                 zoneData,
+                 zone
+        );
+
+    }
+);
+
+zone.appendChild(
+    deleteButton
+);
+
+
+
+
+
+
+        zoneList.appendChild(
+            zone
+        );
+
+    }
+
+
+    // ==========================================
+    // Edit No-Go Zone
+    // ==========================================
+
+    async function editZone(
+        zoneData,
+        zoneElement
+    ) {
+
+
+        // ==========================================
+        // Get new Room Name
+        // ==========================================
+
+        const newRoomName =
+            prompt(
+                "Enter new Room Name",
+                zoneData.name
+            );
+
+
+        // Cancel
+
+        if (newRoomName === null) {
+
+            return;
+        }
+
+
+        const trimmedName =
+            newRoomName.trim();
+
+
+        // ==========================================
+        // Validate Room Name
+        // ==========================================
+
+        if (trimmedName === "") {
+
+            alert(
+                "Room Name is required."
+            );
+
+            return;
+        }
+
+
+        // ==========================================
+        // Update Zone through API
+        // ==========================================
+
+        const response = await fetch(
+
+            `/api/zones/${zoneData.zone_id}`,
+
+            {
+
+                method: "PUT",
+
+                headers: {
+
+                    "Content-Type":
+                        "application/json"
+
+                },
+
+                body: JSON.stringify({
+
+                    floor_id:
+                        zoneData.floor_id,
+
+                    name:
+                        trimmedName
+
+                })
+
+            }
+
+        );
+
+
+        // ==========================================
+        // API Error
+        // ==========================================
+
+        if (!response.ok) {
+
+            alert(
+                "Failed to update No-Go Zone."
+            );
+
+            return;
+        }
+
+
+        // ==========================================
+        // Get Updated Server Response
+        // ==========================================
+
+        const updatedZone =
+            await response.json();
+
+
+        // ==========================================
+        // Update Local Zone Data
+        // ==========================================
+
+        zoneData.name =
+            updatedZone.name;
+
+
+        zoneData.floor_id =
+            updatedZone.floor_id;
+
+
+        // ==========================================
+        // Update UI Attributes
+        // ==========================================
+
+        zoneElement.setAttribute(
+            "data-zone-name",
+            updatedZone.name
+        );
+
+
+        zoneElement.setAttribute(
+            "data-floor-id",
+            updatedZone.floor_id
+        );
+
+
+        // ==========================================
+        // Update Display Text
+        // ==========================================
+
+        zoneElement.firstChild.textContent =
+            `${updatedZone.floor_id} | ` +
+            `${updatedZone.name} | ` +
+            `${updatedZone.zone_id}`;
+
+
+        alert(
+            "No-Go Zone updated successfully."
+        );
+
+    }
+
+
+// ==========================================
+// Delete No-Go Zone
+// ==========================================
+
+async function deleteZone(
+    zoneData,
+    zoneElement
+) {
+
+    const response = await fetch(
+        `/api/zones/${zoneData.zone_id}`,
+        {
+            method: "DELETE"
+        }
+    );
+
+
+    // ==========================================
+    // API Error
+    // ==========================================
+
+    if (!response.ok) {
+
+        alert(
+            "Failed to delete No-Go Zone."
+        );
+
+        return;
+    }
+
+
+    // ==========================================
+    // Remove Zone from UI
+    // ==========================================
+
+    zoneElement.remove();
+
+}
+
+
+</script>
+
