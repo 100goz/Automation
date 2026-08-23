@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        PYTHON = 'C:\\Users\\kinga\\AppData\\Local\\Programs\\Python\\Python312\\python.exe'
+    }
+
     stages {
 
         stage('Checkout') {
@@ -19,8 +23,8 @@ pipeline {
                 echo 'Environment Check'
                 echo '=========================================='
 
-                bat 'python --version'
-                bat 'pip --version'
+                bat '"%PYTHON%" --version'
+                bat '"%PYTHON%" -m pip --version'
             }
         }
 
@@ -30,8 +34,7 @@ pipeline {
                 echo 'Install Dependencies'
                 echo '=========================================='
 
-                bat 'python -m pip install --upgrade pip'
-                bat 'pip install -r requirements.txt'
+                bat '"%PYTHON%" -m pip install -r requirements.txt'
             }
         }
 
@@ -41,7 +44,7 @@ pipeline {
                 echo 'Start Mock Server'
                 echo '=========================================='
 
-                bat 'start "Robot Mock Server" /B python 03_Mock_Server/app.py'
+                bat 'start "Robot Mock Server" /B "%PYTHON%" 03_Mock_Server/app.py'
 
                 echo 'Waiting for Mock Server...'
 
@@ -57,10 +60,9 @@ pipeline {
                 echo 'Robot Wi-Fi Reconnect API Test'
                 echo '=========================================='
 
-                bat 'pytest 02_API_Automation/tests/ -s'
+                bat '"%PYTHON%" -m pytest 02_API_Automation/tests/ -s'
             }
         }
-
     }
 
     post {
@@ -78,7 +80,6 @@ pipeline {
         failure {
             echo 'TEST RESULT : FAIL'
         }
-
     }
 }
 
