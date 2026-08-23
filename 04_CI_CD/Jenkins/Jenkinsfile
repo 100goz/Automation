@@ -38,6 +38,16 @@ pipeline {
             }
         }
 
+        stage('Install Playwright Browser') {
+            steps {
+                echo '=========================================='
+                echo 'Install Playwright Browser'
+                echo '=========================================='
+
+                bat "\"%PYTHON%\" -m playwright install chromium"
+            }
+        }
+
         stage('Start Mock Server') {
             steps {
                 echo '=========================================='
@@ -68,7 +78,7 @@ pipeline {
                 echo 'Playwright UI Test'
                 echo '=========================================='
 
-                bat "\"%PYTHON%\" -m pytest 01_UI_Automation\\Playwright\\tests\\ --headed -s"
+                bat "\"%PYTHON%\" -m pytest 01_UI_Automation\\Playwright\\tests\\ -s"
             }
         }
     }
