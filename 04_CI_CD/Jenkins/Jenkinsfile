@@ -55,10 +55,20 @@ pipeline {
         stage('API Test') {
             steps {
                 echo '=========================================='
-                echo 'Robot Wi-Fi Reconnect API Test'
+                echo 'API Test'
                 echo '=========================================='
 
                 bat "\"%PYTHON%\" -m pytest 02_API_Automation\\tests\\ -s"
+            }
+        }
+
+        stage('Playwright Test') {
+            steps {
+                echo '=========================================='
+                echo 'Playwright UI Test'
+                echo '=========================================='
+
+                bat "\"%PYTHON%\" -m pytest 01_UI_Automation\\Playwright\\tests\\ --headed -s"
             }
         }
     }
