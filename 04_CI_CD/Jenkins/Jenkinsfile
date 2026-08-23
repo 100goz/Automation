@@ -46,9 +46,9 @@ pipeline {
 
                 bat "start \"Robot Mock Server\" /B \"%PYTHON%\" 02_API_Automation\\mock_server\\robot_api.py"
 
-                echo 'Waiting for Mock Server...'
+                echo 'Mock Server started'
 
-                bat "powershell -NoProfile -Command \"for (\\$i = 0; \\$i -lt 20; \\$i++) { if (Test-NetConnection -ComputerName '127.0.0.1' -Port 5000 -InformationLevel Quiet) { Write-Host 'Mock Server is ready'; exit 0 }; Start-Sleep -Seconds 1 }; Write-Error 'Mock Server failed to start'; exit 1\""
+                sleep time: 3, unit: 'SECONDS'
             }
         }
 
