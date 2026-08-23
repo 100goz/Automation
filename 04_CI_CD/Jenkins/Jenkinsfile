@@ -1,0 +1,84 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                echo '=========================================='
+                echo 'Checkout Source Code'
+                echo '=========================================='
+
+                checkout scm
+            }
+        }
+
+        stage('Environment Check') {
+            steps {
+                echo '=========================================='
+                echo 'Environment Check'
+                echo '=========================================='
+
+                bat 'python --version'
+                bat 'pip --version'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                echo '=========================================='
+                echo 'Install Dependencies'
+                echo '=========================================='
+
+                bat 'python -m pip install --upgrade pip'
+                bat 'pip install -r requirements.txt'
+            }
+        }
+
+        stage('Start Mock Server') {
+            steps {
+                echo '=========================================='
+                echo 'Start Mock Server'
+                echo '=========================================='
+
+                bat 'start "Robot Mock Server" /B python 03_Mock_Server/app.py'
+
+                echo 'Waiting for Mock Server...'
+
+                bat '''
+                    powershell -Command "$client = New-Object System.Net.Sockets.TcpClient; for ($i=0; $i -lt 20; $i++) { try { $client.Connect(''127.0.0.1'', 5000); $client.Close(); Write-Host ''Mock Server is ready''; exit 0 } catch { Start-Sleep -Seconds 1 } }; Write-Error ''Mock Server failed to start''; exit 1"
+                '''
+            }
+        }
+
+        stage('API Test') {
+            steps {
+                echo '=========================================='
+                echo 'Robot Wi-Fi Reconnect API Test'
+                echo '=========================================='
+
+                bat 'pytest 02_API_Automation/tests/ -s'
+            }
+        }
+
+    }
+
+    post {
+
+        always {
+            echo '=========================================='
+            echo 'Jenkins Pipeline Finished'
+            echo '=========================================='
+        }
+
+        success {
+            echo 'TEST RESULT : PASS'
+        }
+
+        failure {
+            echo 'TEST RESULT : FAIL'
+        }
+
+    }
+}
+
