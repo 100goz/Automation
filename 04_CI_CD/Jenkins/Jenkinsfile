@@ -44,7 +44,7 @@ pipeline {
                 echo 'Start Mock Server'
                 echo '=========================================='
 
-                bat 'start "Robot Mock Server" /B "%PYTHON%" 03_Mock_Server/app.py'
+                bat 'start "Robot Mock Server" /B "C:\\Users\\kinga\\AppData\\Local\\Programs\\Python\\Python312\\python.exe" 02_API_Automation/mock_server/robot_api.py
 
                 echo 'Waiting for Mock Server...'
 
