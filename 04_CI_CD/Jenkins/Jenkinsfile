@@ -23,8 +23,8 @@ pipeline {
                 echo 'Environment Check'
                 echo '=========================================='
 
-                bat '"%PYTHON%" --version'
-                bat '"%PYTHON%" -m pip --version'
+                bat "\"%PYTHON%\" --version"
+                bat "\"%PYTHON%\" -m pip --version"
             }
         }
 
@@ -34,7 +34,7 @@ pipeline {
                 echo 'Install Dependencies'
                 echo '=========================================='
 
-                bat '"%PYTHON%" -m pip install -r requirements.txt'
+                bat "\"%PYTHON%\" -m pip install -r requirements.txt"
             }
         }
 
@@ -44,13 +44,11 @@ pipeline {
                 echo 'Start Mock Server'
                 echo '=========================================='
 
-                bat 'start "Robot Mock Server" /B "C:\\Users\\kinga\\AppData\\Local\\Programs\\Python\\Python312\\python.exe" 02_API_Automation/mock_server/robot_api.py
+                bat "start \"Robot Mock Server\" /B \"%PYTHON%\" 02_API_Automation\\mock_server\\robot_api.py"
 
                 echo 'Waiting for Mock Server...'
 
-                bat '''
-                    powershell -NoProfile -Command "for ($i = 0; $i -lt 20; $i++) { if (Test-NetConnection -ComputerName '127.0.0.1' -Port 5000 -InformationLevel Quiet) { Write-Host 'Mock Server is ready'; exit 0 }; Start-Sleep -Seconds 1 }; Write-Error 'Mock Server failed to start'; exit 1"
-                '''
+                bat "powershell -NoProfile -Command \"for (\\$i = 0; \\$i -lt 20; \\$i++) { if (Test-NetConnection -ComputerName '127.0.0.1' -Port 5000 -InformationLevel Quiet) { Write-Host 'Mock Server is ready'; exit 0 }; Start-Sleep -Seconds 1 }; Write-Error 'Mock Server failed to start'; exit 1\""
             }
         }
 
@@ -60,7 +58,7 @@ pipeline {
                 echo 'Robot Wi-Fi Reconnect API Test'
                 echo '=========================================='
 
-                bat '"%PYTHON%" -m pytest 02_API_Automation/tests/ -s'
+                bat "\"%PYTHON%\" -m pytest 02_API_Automation\\tests\\ -s"
             }
         }
     }
