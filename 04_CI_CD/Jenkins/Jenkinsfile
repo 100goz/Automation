@@ -48,15 +48,21 @@ pipeline {
             }
         }
 
-        stage('Start Mock Server') {
+        stage('Start Flask Servers') {
             steps {
                 echo '=========================================='
-                echo 'Start Mock Server'
+                echo 'Start Flask Servers'
                 echo '=========================================='
 
-                bat "start \"Robot Mock Server\" /B \"%PYTHON%\" 02_API_Automation\\mock_server\\robot_api.py"
+                echo 'Starting UI Flask Server : 5000'
 
-                echo 'Mock Server started'
+                bat "start \"UI Flask Server\" /B \"%PYTHON%\" 03_Mock_Server\\app.py"
+
+                echo 'Starting API Flask Server : 5001'
+
+                bat "start \"API Flask Server\" /B \"%PYTHON%\" 02_API_Automation\\mock_server\\robot_api.py"
+
+                echo 'Both Flask Servers started'
 
                 sleep time: 3, unit: 'SECONDS'
             }
@@ -100,4 +106,5 @@ pipeline {
         }
     }
 }
+
 
